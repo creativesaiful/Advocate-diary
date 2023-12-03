@@ -1,0 +1,200 @@
+@extends('layouts.admin')
+
+@section('content')
+    <!-- Custom Modals -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card-box">
+
+
+
+                <div class="button-list text-right">
+
+                    <!-- Custom width modal -->
+                    <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
+                        data-target="#signup-modal"> Add New Court </button>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card-box table-responsive">
+                            <h4 class="header-title"><b>Court List</b></h4>
+
+
+                            <table id="datatable-buttons" class="table table-striped table-bordered dt-responsive nowrap"
+                                style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>SL</th>
+                                        <th>Court Name</th>
+                                        <th>Judge Name</th>
+                                        <th>Action</th>
+
+                                    </tr>
+                                </thead>
+
+
+                                <tbody>
+                               
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+
+
+
+                <!-- Signup modal content -->
+                <div id="signup-modal" class="modal fade" tabindex="-1" role="dialog"
+                    aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+
+                            <div class="modal-body">
+                                <h2 class="text-uppercase text-center mb-4">
+                                    Add New Court
+                                </h2>
+
+
+                                <form class="form-horizontal" id="add_court_form">
+                                    @csrf
+                                    <div class="form-group">
+                                        <div class="col-12">
+                                            <label for="courtname">Court Name</label>
+                                            <input class="form-control" type="text" id="courtname" name="court_name">
+                                        </div>
+
+                                        <div class="col-12">
+                                            <p class="text-danger error"></p>
+                                        </div>
+
+
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="col-12">
+                                            <label for="judgename">Judge Name</label>
+                                            <input class="form-control" type="text" id="judgename" name="judge_name">
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="form-group account-btn text-center">
+                                        <div class="col-12">
+                                            <button class="btn width-lg btn-rounded btn-primary waves-effect waves-light"
+                                                type="button" id="add_court">Submit</button>
+                                        </div>
+                                    </div>
+
+                                </form>
+
+
+                            </div>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal-dialog -->
+                </div><!-- /.modal -->
+
+
+
+
+
+            </div>
+        </div><!-- end col -->
+    </div>
+    <!-- End row -->
+@endsection
+
+@section('js')
+    <!-- Required datatable js -->
+    <script src="{{ asset('assets/libs/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <!-- Buttons examples -->
+    <script src="{{ asset('assets/libs/datatables/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/jszip/jszip.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/pdfmake/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/pdfmake/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables/buttons.print.min.js') }}"></script>
+
+    <!-- Responsive examples -->
+    <script src="{{ asset('assets/libs/datatables/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables/responsive.bootstrap4.min.js') }}"></script>
+
+    <!-- Datatables init -->
+    <script src="assets/js/pages/datatables.init.js"></script>
+
+
+
+    <script>
+        $(document).ready(function() {
+            $('#add_court').on('click', function() {
+                $data = $('#add_court_form').serialize();
+                $.ajax({
+                    url: "{{ route('courts.store') }}",
+                    type: "POST",
+                    data: $data,
+                    success: function(data) {
+                        if (data.status == 500) {
+                            $('.error').text(data.message);
+                        } else {
+                            $.toast({
+                                heading: "Well done!",
+                                text: "Court Added successfully",
+                                position: "top-right",
+                                loaderBg: "#5ba035",
+                                icon: "success",
+                                hideAfter: 3e3,
+                                stack: 1
+                            });
+
+                            $('#signup-modal').modal('hide');
+                            courtList();
+                            $('#add_court_form')[0].reset();
+                        }
+                    }
+                })
+            });
+        });
+
+        courtList();
+
+        function courtList() {
+    // Make an AJAX request using jQuery
+    $.ajax({
+        type: "GET",  // HTTP method (POST in this case)
+        dataType: 'json',  // Expected data type (JSON)
+        url: '{{ route('courts.list') }}',  // Server endpoint URL
+        success: function (data) {
+            // Callback function to handle the successful response
+            console.log(data);
+            // Initialize DataTable with received data
+            $('#datatable-buttons').dataTable({
+                data: data,  // Data to be displayed in the table
+             
+                columns: [
+                    // need to show serial number in first culomn
+                    
+                    { "data": "id" },
+                    { "data": "court_name" },
+                    { "data": "judge_name" },
+                    { "data": "action", render: function (data, type, row) {
+                            return '<a href="javascript:void(0)" class="action-edit btn btn-gradient btn-rounded waves-light waves-effect width-md" data-id="' + row.id + '">Edit</a>  <a href="javascript:void(0)" class="action-delete btn btn-danger btn-rounded waves-light waves-effect width-md" data-id="' + row.id + '">Delete</a>';
+                        }
+                     }// action column
+                ],
+                "bDestroy": true
+            });
+        },
+        // Add error handling if needed
+    });
+}
+
+        
+    </script>
+@endsection

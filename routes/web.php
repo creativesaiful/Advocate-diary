@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\CourtController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -23,6 +23,19 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        return view('pages.dashboard');
     })->name('dashboard');
+
+   Route::prefix('courts')->group(function () {
+       Route::get('/', [CourtController::class, 'index'])->name('courts.index');
+       Route::get('/create', [CourtController::class, 'create'])->name('courts.create');
+       Route::post('/store', [CourtController::class, 'store'])->name('courts.store');
+       Route::get('/{id}/edit', [CourtController::class, 'edit'])->name('courts.edit');
+       Route::put('/{id}', [CourtController::class, 'update'])->name('courts.update');
+       Route::delete('/{id}', [CourtController::class, 'destroy'])->name('courts.destroy'); 
+
+       Route::get('/court-list', [CourtController::class, 'courtListAjax'])->name('courts.list');
+
+
+   });
 });
