@@ -132,7 +132,17 @@
                 <!-- item-->
                 <a href="javascript:void(0);" class="dropdown-item notify-item">
                     <i class="fe-log-out"></i>
-                    <span>Logout</span>
+                 
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">
+                                     <i class="fa fa-sign-out"></i>
+                                     
+                                     <span>{{ __('Logout') }}</span>
+                     
+                            </a>
+                          </form>
+                    
                 </a>
 
             </div>

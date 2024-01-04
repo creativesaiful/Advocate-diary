@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CourtController;
+use App\Http\Controllers\LoginController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,8 +15,11 @@ use App\Http\Controllers\CourtController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/login');
 });
+
+// Route::get('logout', [LoginController::class, 'logout'])->name('logout');
+
 
 Route::middleware([
     'auth:sanctum',
@@ -30,9 +34,9 @@ Route::middleware([
        Route::get('/', [CourtController::class, 'index'])->name('courts.index');
        Route::get('/create', [CourtController::class, 'create'])->name('courts.create');
        Route::post('/store', [CourtController::class, 'store'])->name('courts.store');
-       Route::get('/{id}/edit', [CourtController::class, 'edit'])->name('courts.edit');
-       Route::put('/{id}', [CourtController::class, 'update'])->name('courts.update');
-       Route::delete('/{id}', [CourtController::class, 'destroy'])->name('courts.destroy'); 
+       Route::get('/edit/{id}', [CourtController::class, 'edit'])->name('courts.edit');
+       Route::post('update/{id}', [CourtController::class, 'update'])->name('courts.update');
+       Route::get('delete/{id}', [CourtController::class, 'delete'])->name('courts.delete'); 
 
        Route::get('/court-list', [CourtController::class, 'courtListAjax'])->name('courts.list');
 

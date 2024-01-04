@@ -101,6 +101,59 @@
 
 
 
+                {{-- Edit modal content --}}
+                <div id="edit_court" class="modal fade" tabindex="-1" role="dialog"
+                    aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+
+                            <div class="modal-body">
+                                <h2 class="text-uppercase text-center mb-4">
+                                    Edit Court
+                                </h2>
+
+                                <form class="form-horizontal" id="edit_court_form">
+                                    @csrf
+
+
+                                    <input type="hidden" id="edit_court_id" name="edit_court_id">
+
+                                    <div class="form-group">
+                                        <div class="col-12">
+                                            <label for="edit_court_name">Court Name</label>
+                                            <input class="form-control" type="text" id="edit_court_name"
+                                                name="court_name">
+                                        </div>
+
+                                        <div class="col-12">
+                                            <p class="text-danger error"></p>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="col-12">
+                                            <label for="edit_judge_name">Judge Name</label>
+                                            <input class="form-control" type="text" id="edit_judge_name"
+                                                name="judge_name">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group account-btn text-center">
+                                        <div class="col-12">
+                                            <button class="btn width-lg btn-rounded btn-primary waves-effect waves-light"
+                                                type="button" id="update_court">Update</button>
+                                        </div>
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal-dialog -->
+                </div><!-- /.modal -->
+
 
 
             </div>
@@ -164,6 +217,8 @@
 
         courtList();
 
+        
+
         function courtList() {
     // Make an AJAX request using jQuery
     $.ajax({
@@ -195,6 +250,74 @@
     });
 }
 
+    //Edit court
+    $(document).on('click', '.action-edit', function() {
+        var id = $(this).data('id');
+        $.ajax({
+            type: "GET",
+            url:  "{{ url('courts/edit') }}" + '/' + id,
+            success: function(data) {
+                $('#edit_court').modal('show');
+                $('#edit_court_name').val(data.court_name);
+                $('#edit_judge_name').val(data.judge_name);
+                $('#edit_court_id').val(data.id);
+
+            }
+        })
+    });
+
+    //Update court
+    $(document).on('click', '#update_court', function() {
+        var id = $('#edit_court_id').val();
+        $data = $('#edit_court_form').serialize();
+        $.ajax({
+            type: "POST",
+            url: "{{ url('courts/update') }}" + '/' + id,
+            data: $data,
+            success: function(data) {
+                if (data.status == 500) {
+                    $('.error').text(data.message);
+                } else {
+                    $.toast({
+                        heading: "Well done!",
+                        text: "Court Updated successfully",
+                        position: "top-right",
+                        loaderBg: "#5ba035",
+                        icon: "success",
+                        hideAfter: 3e3,
+                        stack: 1
+                    });
+                    $('#edit_court').modal('hide');
+                    courtList();
+
+                    $('#edit_court_form')[0].reset();
+                    $('.error').text('');
+                }
+            }
+        })
+    });
+
+
+    $(document).on('click', '.action-delete', function() {
+        var id = $(this).data('id');
+        $.ajax({
+            type: "GET",
+            url:  "{{ url('courts/delete') }}" + '/' + id,
+          
+            success: function(data) {
+                $.toast({
+                    heading: "Well done!",
+                    text: "Court Deleted successfully",
+                    position: "top-right",
+                    loaderBg: "#5ba035",
+                    icon: "success",
+                    hideAfter: 3e3,
+                    stack: 1
+                });
+                courtList();
+            }
+        })
+    });
         
     </script>
 @endsection

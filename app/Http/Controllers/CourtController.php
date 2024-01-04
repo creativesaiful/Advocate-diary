@@ -64,6 +64,62 @@ class CourtController extends Controller
     }
 
 
+    public function edit($id) {
+
+        $court = Court::find($id);
+
+
+        return response()->json($court);
+
+    }
+
+    public function update(Request $request, $id) {
+
+        try {
+
+            $request->validate([
+                'court_name' => 'required',
+                'judge_name' => 'required',
+            ]);
+
+            $court = Court::find($id);
+
+            $court->update([
+                'court_name' => $request->court_name,
+                'judge_name' => $request->judge_name,
+            ]);
+
+            return response()->json([
+                'message' => 'Court updated successfully',
+                'status' => 200
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+                'status' => 500
+            ]);
+        }
+        
+            
+        
+
+    }
+
+
+
+    public function delete($id) {
+
+        $court = Court::find($id);
+
+        $court->delete();
+
+        return response()->json([
+            'message' => 'Court deleted successfully',
+            'status' => 200
+        ]);
+
+    }
 
    
 
