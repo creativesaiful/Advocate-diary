@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('courts', function (Blueprint $table) {
             $table->id();
-            $table->string('court_name')->unique(); 
+            $table->string('court_name'); 
             $table->string('judge_name')->nullable();
+
+            $table->unsignedBigInteger('user_id');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
             $table->timestamps();
         });
     }
