@@ -22,7 +22,7 @@
                             <h4 class="header-title"><b>Court List</b></h4>
 
 
-                            <table id="datatable-buttons" class="table table-striped table-bordered dt-responsive nowrap"
+                            <table id="court_table" class="table table-striped table-bordered dt-responsive nowrap"
                                 style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                 <thead>
                                     <tr>
@@ -36,7 +36,7 @@
 
 
                                 <tbody>
-                               
+
 
 
                                 </tbody>
@@ -163,25 +163,6 @@
 @endsection
 
 @section('js')
-    <!-- Required datatable js -->
-    <script src="{{ asset('assets/libs/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables/dataTables.bootstrap4.min.js') }}"></script>
-    <!-- Buttons examples -->
-    <script src="{{ asset('assets/libs/datatables/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables/buttons.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/jszip/jszip.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/pdfmake/pdfmake.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/pdfmake/vfs_fonts.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables/buttons.html5.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables/buttons.print.min.js') }}"></script>
-
-    <!-- Responsive examples -->
-    <script src="{{ asset('assets/libs/datatables/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables/responsive.bootstrap4.min.js') }}"></script>
-
-    <!-- Datatables init -->
-    <script src="assets/js/pages/datatables.init.js"></script>
-
 
 
     <script>
@@ -209,6 +190,7 @@
                             $('#signup-modal').modal('hide');
                             courtList();
                             $('#add_court_form')[0].reset();
+                            $('.error').text('');
                         }
                     }
                 })
@@ -217,107 +199,121 @@
 
         courtList();
 
-        
+
 
         function courtList() {
-    // Make an AJAX request using jQuery
-    $.ajax({
-        type: "GET",  // HTTP method (POST in this case)
-        dataType: 'json',  // Expected data type (JSON)
-        url: '{{ route('courts.list') }}',  // Server endpoint URL
-        success: function (data) {
-            // Callback function to handle the successful response
-            console.log(data);
-            // Initialize DataTable with received data
-            $('#datatable-buttons').dataTable({
-                data: data,  // Data to be displayed in the table
-             
-                columns: [
-                    // need to show serial number in first culomn
-                    
-                    { "data": "id" },
-                    { "data": "court_name" },
-                    { "data": "judge_name" },
-                    { "data": "action", render: function (data, type, row) {
-                            return '<a href="javascript:void(0)" class="action-edit btn btn-gradient btn-rounded waves-light waves-effect width-md" data-id="' + row.id + '">Edit</a>  <a href="javascript:void(0)" class="action-delete btn btn-danger btn-rounded waves-light waves-effect width-md" data-id="' + row.id + '">Delete</a>';
-                        }
-                     }// action column
-                ],
-                "bDestroy": true
+            // Make an AJAX request using jQuery
+            $.ajax({
+                type: "GET", // HTTP method (POST in this case)
+                dataType: 'json', // Expected data type (JSON)
+                url: '{{ route('courts.list') }}', // Server endpoint URL
+                success: function(data) {
+                    // Callback function to handle the successful response
+                 
+                    // Initialize DataTable with received data.
+                    var i = 1;
+                    $('#court_table').dataTable({
+                        data: data, // Data to be displayed in the table
+
+                        columns: [
+                            // need to show serial number in first culomn
+
+
+                            {
+                                "render": function(data, type, full, meta) {
+                                    return i++;
+                                }
+                            },
+                            {
+                                "data": "court_name"
+                            },
+                            {
+                                "data": "judge_name"
+                            },
+                            {
+                                "data": "action",
+                                render: function(data, type, row) {
+                                    return '<a href="javascript:void(0)" class="action-edit btn btn-gradient btn-rounded waves-light waves-effect width-md" data-id="' +
+                                        row.id +
+                                        '">Edit</a>  <a href="javascript:void(0)" class="action-delete btn btn-danger btn-rounded waves-light waves-effect width-md" data-id="' +
+                                        row.id + '">Delete</a>';
+                                }
+                            } // action column
+                        ],
+                        "bDestroy": true
+                    });
+                },
+                // Add error handling if needed
             });
-        },
-        // Add error handling if needed
-    });
-}
+        }
 
-    //Edit court
-    $(document).on('click', '.action-edit', function() {
-        var id = $(this).data('id');
-        $.ajax({
-            type: "GET",
-            url:  "{{ url('courts/edit') }}" + '/' + id,
-            success: function(data) {
-                $('#edit_court').modal('show');
-                $('#edit_court_name').val(data.court_name);
-                $('#edit_judge_name').val(data.judge_name);
-                $('#edit_court_id').val(data.id);
+        //Edit court
+        $(document).on('click', '.action-edit', function() {
+            var id = $(this).data('id');
+            $.ajax({
+                type: "GET",
+                url: "{{ url('courts/edit') }}" + '/' + id,
+                success: function(data) {
+                    $('#edit_court').modal('show');
+                    $('#edit_court_name').val(data.court_name);
+                    $('#edit_judge_name').val(data.judge_name);
+                    $('#edit_court_id').val(data.id);
 
-            }
-        })
-    });
+                }
+            })
+        });
 
-    //Update court
-    $(document).on('click', '#update_court', function() {
-        var id = $('#edit_court_id').val();
-        $data = $('#edit_court_form').serialize();
-        $.ajax({
-            type: "POST",
-            url: "{{ url('courts/update') }}" + '/' + id,
-            data: $data,
-            success: function(data) {
-                if (data.status == 500) {
-                    $('.error').text(data.message);
-                } else {
+        //Update court
+        $(document).on('click', '#update_court', function() {
+            var id = $('#edit_court_id').val();
+            $data = $('#edit_court_form').serialize();
+            $.ajax({
+                type: "POST",
+                url: "{{ url('courts/update') }}" + '/' + id,
+                data: $data,
+                success: function(data) {
+                    if (data.status == 500) {
+                        $('.error').text(data.message);
+                    } else {
+                        $.toast({
+                            heading: "Well done!",
+                            text: "Court Updated successfully",
+                            position: "top-right",
+                            loaderBg: "#5ba035",
+                            icon: "success",
+                            hideAfter: 3e3,
+                            stack: 1
+                        });
+                        $('#edit_court').modal('hide');
+                        courtList();
+
+                        $('#edit_court_form')[0].reset();
+                        $('.error').text('');
+                    }
+                }
+            })
+        });
+
+
+        $(document).on('click', '.action-delete', function() {
+            var id = $(this).data('id');
+            $.ajax({
+                type: "GET",
+                url: "{{ url('courts/delete') }}" + '/' + id,
+
+                success: function(data) {
                     $.toast({
                         heading: "Well done!",
-                        text: "Court Updated successfully",
+                        text: "Court Deleted successfully",
                         position: "top-right",
                         loaderBg: "#5ba035",
                         icon: "success",
                         hideAfter: 3e3,
                         stack: 1
                     });
-                    $('#edit_court').modal('hide');
                     courtList();
-
-                    $('#edit_court_form')[0].reset();
-                    $('.error').text('');
                 }
-            }
-        })
-    });
-
-
-    $(document).on('click', '.action-delete', function() {
-        var id = $(this).data('id');
-        $.ajax({
-            type: "GET",
-            url:  "{{ url('courts/delete') }}" + '/' + id,
-          
-            success: function(data) {
-                $.toast({
-                    heading: "Well done!",
-                    text: "Court Deleted successfully",
-                    position: "top-right",
-                    loaderBg: "#5ba035",
-                    icon: "success",
-                    hideAfter: 3e3,
-                    stack: 1
-                });
-                courtList();
-            }
-        })
-    });
-        
+            })
+        });
     </script>
 @endsection

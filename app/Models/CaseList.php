@@ -5,13 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Court extends Model
+class CaseList extends Model
 {
-    use HasFactory;
     protected $guarded = [];  
-    protected $fillable = [
-        'court_name', 'judge_name', 'user_id'
-    ];
+    use HasFactory;
 
-  
+    
+    public function courts(){
+
+        return $this->belongsTo(Court::class, 'court_id', 'id');
+    }
+
 }

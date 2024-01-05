@@ -27,12 +27,27 @@ class CourtController extends Controller
 
         try {
             $request->validate([
-                'court_name' => 'required | unique:courts',
+                'court_name' => 'required',
+                'judge_name' => 'required',
             ]);
+            //check existing court name for current user
+
+            $existingCourt = Court::where('court_name', $request->court_name)->where('user_id', auth()->user()->id)->first();
+
+            if($existingCourt) {
+                return response()->json([
+                    'message' => 'Court already exists',
+                    'status' => 500
+                ]);
+            }
+
+
+
 
             Court::create([
                 'court_name' => $request->court_name,
                 'judge_name' => $request->judge_name,
+                'user_id' => auth()->user()->id
             ]);
 
             return response()->json([
@@ -58,7 +73,7 @@ class CourtController extends Controller
      *  @return \Illuminate\Http\Response
      */
     public function courtListAjax() {
-        $courts = Court::all();
+        $courts = Court::where('user_id', auth()->user()->id)->get();
 
         return response()->json($courts);
     }
@@ -66,7 +81,7 @@ class CourtController extends Controller
 
     public function edit($id) {
 
-        $court = Court::find($id);
+        $court = Court::where('user_id', auth()->user()->id)->find($id);
 
 
         return response()->json($court);
@@ -110,7 +125,7 @@ class CourtController extends Controller
 
     public function delete($id) {
 
-        $court = Court::find($id);
+        $court = Court::where('user_id', auth()->user()->id)->find($id);;
 
         $court->delete();
 
