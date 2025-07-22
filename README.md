@@ -49,13 +49,9 @@ cd Advocate-diary
 composer install
 ```
 
-4. Generate the application key:
-```bash
-php artisan key:generate    
-```
 
-5. Copy .env.example to .env:
-6. Create a database on your phpmyadmin or mysql server with any name. Paste the database name in .env file and configure it.
+4. Copy .env.example to .env:
+5. Create a database on your phpmyadmin or mysql server with any name. Paste the database name in .env file and configure it.
 
 ```bash
 DB_CONNECTION=mysql
@@ -66,43 +62,43 @@ DB_USERNAME=your-username
 DB_PASSWORD=your-password
 ```
 
-8. Install NPM packages:
+6. Install NPM packages:
 ```bash
 npm install 
 npm run build
 ```
-9. Run migrations:
+7. Run migrations:
 
 ```bash
 php artisan migrate
 ```
 
-10. Seed the database
+8. Seed the database
 
 ```bash
 php artisan db:seed
 ```
 
-11. Generate application key:
+9. Generate application key:
 
 ```bash
 php artisan key:generate
 ```
 
-12.  Link the storage folder:
+10.  Link the storage folder:
 
 ```bash
 php artisan storage:link
 ```
 
-13. Run the server:
+11. Run the server:
 
 ```bash 
 php artisan serve
 ```
 
-14. Access the application at http://localhost:8000
-15. Visit http://localhost:8000/admin/login in your browser to login as admin.
+12. Access the application at http://localhost:8000
+13. Visit http://localhost:8000/admin/login in your browser to login as admin.
 
 
 
